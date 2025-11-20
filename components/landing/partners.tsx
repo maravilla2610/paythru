@@ -5,7 +5,7 @@ export function Partners() {
     <section className="bg-black py-20 px-4">
       <div className="mx-auto max-w-7xl">
         <div className="mb-12 text-center">
-          <h2 className="mb-4 bg-linear-to-b from-gray-400 to-white bg-clip-text text-md font-bold text-transparent md:text-2xl">
+          <h2 className="mb-4 bg-gradient-to-b from-gray-400 to-white bg-clip-text text-md font-bold text-transparent md:text-2xl">
             Trusted by Leading Institutions
           </h2>
           <p className="text-gray-400">

@@ -8,7 +8,7 @@ export function Products() {
     <section className="bg-black py-20 px-4" id="products">
           <div className="mx-auto max-w-7xl">
             <div className="mb-12 text-center">
-              <h2 className="mb-4 bg-linear-to-b from-gray-400 to-white bg-clip-text text-4xl font-bold text-transparent md:text-5xl">
+              <h2 className="mb-4 bg-gradient-to-b from-gray-400 to-white bg-clip-text text-4xl font-bold text-transparent md:text-5xl">
                 Our OTC Services
               </h2>
               <p className="text-gray-400">
