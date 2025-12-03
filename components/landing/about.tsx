@@ -3,7 +3,6 @@ import React from "react";
 import { Timeline } from "@/components/ui/timeline";
 import {
   Card,
-  CardSkeletonContainer,
   CardTitle,
   CardDescription,
 } from "@/components/ui/card"

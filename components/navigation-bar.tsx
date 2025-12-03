@@ -27,7 +27,7 @@ export const NavigationBar = () => {
       <NavBody>
         <NavbarLogo />
         <NavItems items={navItems} />
-        <NavbarButton href="https://register.boostotc.com" variant="dark">
+        <NavbarButton href="/login" variant="dark">
           Get Started Now
         </NavbarButton>
       </NavBody>

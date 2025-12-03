@@ -1,8 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
-import { NavigationBar } from "@/components/navigation-bar";
-import { Footer } from "@/components/footer";
 
 const cySans = localFont({
   src: [
@@ -41,9 +39,7 @@ export default function RootLayout({
       <body
         className={`${cySans.variable} antialiased`}
       >
-        <NavigationBar />
         {children}
-        <Footer />
       </body>
     </html>
   );
