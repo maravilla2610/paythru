@@ -10,9 +10,9 @@ export async function login(prevState: { error?: string, message?: string } | nu
 
     const email = formData.get('email') as string
 
-    const user = await supabase.from('Users').select().eq('correo', email).single()
+    const { data: user, error: userError} = await supabase.from('Users').select().eq('correo', email).single()
 
-    if (user.error || !user.data.user) {
+    if (userError || !user) {
         const { error: userError } = await supabase.from('Users').insert([
             { 
                 correo: `${email}` 
