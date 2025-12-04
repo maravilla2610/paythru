@@ -1,27 +1,30 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
+import { CompanyFormData } from "@/lib/entities/company"
 
-// This type is used to define the shape of our data.
-// You can use a Zod schema here if you want.
-export type Payment = {
-  id: string
-  amount: number
-  status: "pending" | "processing" | "success" | "failed"
-  email: string
-}
-
-export const columns: ColumnDef<Payment>[] = [
+export const columns: ColumnDef<CompanyFormData>[] = [
   {
-    accessorKey: "status",
-    header: "Status",
+    accessorKey: "nombre_compañia",
+    header: "Company Name",
   },
   {
-    accessorKey: "email",
+    accessorKey: "rfc",
+    header: "RFC",
+  },
+  {
+    accessorKey: "correo",
     header: "Email",
   },
   {
-    accessorKey: "amount",
-    header: "Amount",
+    accessorKey: "nombre_representante_legal",
+    header: "Representative",
+    cell: ({ row }) => {
+      return `${row.original.nombre_representante_legal} ${row.original.apellido_representante_legal}`
+    }
+  },
+  {
+    accessorKey: "origen",
+    header: "Origin",
   },
 ]

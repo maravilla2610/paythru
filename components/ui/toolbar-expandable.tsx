@@ -198,20 +198,6 @@ const DynamicToolbarExpandable = React.memo<DynamicToolbarExpandableProps>(
       return step?.title || ""
     }, [active, steps])
 
-    const navigationButtons = useMemo(
-      () =>
-        steps.map((step, index) => ({
-          id: step.id,
-          label: step.title,
-          step: (index + 1).toString(),
-          onClick: () => handleNavClick(step.id),
-          isActive: active === step.id,
-          isFirst: index === 0,
-          isLast: index === steps.length - 1,
-        })),
-      [steps, active, handleNavClick]
-    )
-
     return (
       <div
         className={cn(
@@ -244,12 +230,8 @@ const DynamicToolbarExpandable = React.memo<DynamicToolbarExpandableProps>(
                       exit={{ height: 0 }}
                       className=""
                     >
-                      <div ref={contentRef} className="pt-2 px-2 sm:px-2">
-                        <h4 className="text-sm font-medium text-foreground px-2">
-                          {activeTitle}
-                        </h4>
-
-                        <div className="pb-1">
+                      <div ref={contentRef} className="pt-1 px-1 sm:px-2">
+                        <div className="pb-2">
                           <div className="shadow-[0px_1px_1px_0px_rgba(0,0,0,0.05),0px_1px_1px_0px_rgba(255,252,240,0.5)_inset,0px_0px_0px_1px_hsla(0,0%,100%,0.1)_inset,0px_0px_1px_0px_rgba(28,27,26,0.5)] dark:shadow-[0px_1px_1px_0px_rgba(0,0,0,0.2),0px_1px_1px_0px_rgba(255,255,255,0.05)_inset,0px_0px_0px_1px_hsla(0,0%,100%,0.05)_inset,0px_0px_1px_0px_rgba(0,0,0,0.8)] bg-muted/50 rounded-[0.8rem] px-3 py-4 mt-3 mb-2">
                             {renderContent()}
                           </div>
@@ -258,53 +240,6 @@ const DynamicToolbarExpandable = React.memo<DynamicToolbarExpandableProps>(
                     </motion.div>
                   ) : null}
                 </AnimatePresence>
-              </div>
-
-              {/* Navigation bar */}
-              <div className="relative z-10">
-                <ScrollArea
-                  className="w-full"
-                  viewportClassName="scrollbar-hide"
-                  maskHeight={16}
-                  ref={(element) => {
-                    if (element) {
-                      menuContainerRef.current = element
-                      menuRef(element)
-                    }
-                  }}
-                >
-                  <div className="flex items-center p-[1px] w-max min-w-full">
-                    {navigationButtons.map((button, index) => (
-                      <button
-                        key={button.id}
-                        data-step-index={index}
-                        onClick={button.onClick}
-                        className={cn(
-                          "text-sm text-muted-foreground transition-colors py-3 px-3 sm:py-4 sm:px-4 whitespace-nowrap shrink-0 flex items-center gap-2 min-h-[44px] sm:min-h-0",
-                          button.isActive
-                            ? "text-foreground font-medium bg-muted/50"
-                            : "hover:bg-muted/60 active:bg-muted/70"
-                        )}
-                      >
-                        <div className="text-[10px] w-5 h-5 sm:w-5 sm:h-5 flex items-center justify-center shadow-[0px_1px_1px_0px_hsla(0,0%,0%,0.02)_inset,0px_1px_1px_0px_hsla(0,0%,0%,0.02)_inset,0px_0px_0px_1px_rgba(255,255,255,0.25)] dark:shadow-[0px_1px_1px_0px_hsla(0,0%,100%,0.02)_inset,0px_1px_1px_0px_rgba(255,255,255,0.05)_inset,0px_0px_0px_1px_hsla(0,0%,100%,0.05)_inset,0px_0px_1px_0px_rgba(0,0,0,0.25)] font-bold rounded-md transition-all duration-300">
-                          <span
-                            className={cn(
-                              "w-full rounded-md",
-                              button.isActive
-                                ? "bg-blue-300/20 dark:bg-blue-500/20 text-blue-700 dark:text-blue-400"
-                                : "bg-muted/50 text-muted-foreground"
-                            )}
-                          >
-                            {button.step}
-                          </span>
-                        </div>
-                        <span className="text-xs sm:text-sm font-medium text-foreground">
-                          {button.label}
-                        </span>
-                      </button>
-                    ))}
-                  </div>
-                </ScrollArea>
               </div>
             </div>
           </div>

@@ -1,22 +1,9 @@
 import { DashboardView } from "@/components/dashboard/dashboard-view";
-import { Payment } from "@/components/dashboard/columns";
 import { getUser } from "@/app/actions/user";
-
-async function getData(): Promise<Payment[]> {
-  // Fetch data from your API here.
-  return [
-    {
-      id: "728ed52f",
-      amount: 100,
-      status: "pending",
-      email: "m@example.com",
-    },
-    // ...
-  ];
-}
+import { getCompanies } from "@/app/actions/get-companies";
 export default async function DashboardPage() {
   const user = await getUser();
-  const data = await getData();
+  const companies = await getCompanies(user?.auth_id || "");
 
-  return <DashboardView data={data} user={user} />;
+  return <DashboardView companies={companies} user={user} />;
 }

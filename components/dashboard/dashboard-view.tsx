@@ -1,28 +1,30 @@
 "use client"
 
 import { useState } from "react"
+import { useRouter } from "next/navigation"
 import { DataTable as DashboardDataTable } from "@/components/dashboard/data-table"
-import { Payment, columns } from "@/components/dashboard/columns"
+import { columns } from "@/components/dashboard/columns"
 import RegistrationForm from "@/components/register_company/registration-form"
 import { Button } from "@/components/ui/button"
-import { Plus, ArrowLeft } from "lucide-react"
+import { Plus, X } from "lucide-react"
 import { User } from "@/lib/entities/user"
+import { CompanyFormData as Company } from "@/lib/entities/company"
 
 interface DashboardViewProps {
-  data: Payment[],
+  companies: Company[],
   user: User | null,
 }
 
-export function DashboardView({ data, user }: DashboardViewProps) {
+export function DashboardView({ companies, user }: DashboardViewProps) {
   const [showRegistration, setShowRegistration] = useState(false)
+  const router = useRouter()
 
   if (showRegistration) {
     return (
-      <div className="space-y-4 p-4">
-        <Button variant="outline" onClick={() => setShowRegistration(false)} className="mb-4">
-          <ArrowLeft className="mr-2 h-4 w-4" /> Back to Dashboard
-        </Button>
-        <RegistrationForm user={user} setShowRegistration={setShowRegistration} />
+      <div className="relative min-h-screen w-full">
+        <div className="flex min-h-screen items-center justify-center py-12">
+          <RegistrationForm user={user} setShowRegistration={setShowRegistration} onSuccess={() => router.refresh()} />
+        </div>
       </div>
     )
   }
@@ -35,7 +37,7 @@ export function DashboardView({ data, user }: DashboardViewProps) {
           <Plus className="mr-2 h-4 w-4" /> Register Company
         </Button>
       </div>
-      <DashboardDataTable data={data} columns={columns} />
+      <DashboardDataTable data={companies} columns={columns} />
     </div>
   )
 }

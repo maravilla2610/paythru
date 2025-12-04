@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { z } from "zod";
-import { Building2, MapPin, FileText, Wallet, Save } from "lucide-react";
+import { Building2, MapPin, FileText, Wallet, Save, Loader2, X } from "lucide-react";
 import ToolbarExpandable from "@/components/ui/toolbar-expandable";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,20 +12,21 @@ import { User } from "@/lib/entities/user";
 import { countries } from "@/lib/entities/countries";
 import { registerCompany } from "@/app/actions/register-company";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
+    Select,
+    SelectContent,
+    SelectItem,
+    SelectTrigger,
+    SelectValue,
 } from "@/components/ui/select"
 
-export default function RegistrationForm({ user, setShowRegistration }: { user: User | null, setShowRegistration: (show: boolean) => void }) {
+export default function RegistrationForm({ user, setShowRegistration, onSuccess }: { user: User | null, setShowRegistration: (show: boolean) => void, onSuccess?: () => void }) {
     const [formData, setFormData] = useState<Partial<CompanyFormData & PersonFormData>>({
         origen: "boost",
         moral_fisica: false,
-        user_id: user?.id
+        user_id: user?.auth_id || "",
     });
     const [errors, setErrors] = useState<Record<string, string>>({});
+    const [isLoading, setIsLoading] = useState(false);
 
     const [activeStep, setActiveStep] = useState<string | null>("type");
 
@@ -75,26 +76,39 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
     };
 
     const validateStep = (fields: string[]) => {
+        console.log('Fields to validate:', fields);
         const newErrors: Record<string, string> = {};
         let isValid = true;
         const schema = formData.moral_fisica ? companySchema : personSchema;
 
         fields.forEach((field) => {
-            try {
-                // Create a partial schema for the specific field to validate
+            // eslint-disable-next-line @typescript-eslint/no-explicit-any
+            const fieldSchema = (schema as any).pick({ [field]: true });
+            const result = fieldSchema.safeParse({ [field]: formData[field as keyof typeof formData] });
+
+            if (!result.success) {
+                const zodError = result.error;
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                const fieldSchema = (schema as any).pick({ [field]: true });
-                fieldSchema.parse({ [field]: formData[field as keyof typeof formData] });
-            } catch (error) {
-                if (error instanceof z.ZodError) {
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    newErrors[field] = (error as any).errors[0].message;
-                    isValid = false;
+                const issues = zodError.issues || (zodError as any).errors || [];
+
+                if (Array.isArray(issues) && issues.length > 0) {
+                    const fieldError = issues.find(err =>
+                        err.path.length > 0 && err.path[0] === field
+                    ) || issues[0];
+
+                    if (fieldError) {
+                        newErrors[field] = fieldError.message;
+                        isValid = false;
+                    }
                 }
             }
         });
 
-        setErrors((prev) => ({ ...prev, ...newErrors }));
+        setErrors((prev) => {
+            const nextErrors = { ...prev };
+            fields.forEach(f => delete nextErrors[f]);
+            return { ...nextErrors, ...newErrors };
+        });
         return isValid;
     };
 
@@ -113,7 +127,9 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
     };
 
     const handleSubmit = async () => {
+        setIsLoading(true);
         try {
+            console.log("Submitting form data:", formData);
             const schema = formData.moral_fisica ? companySchema : personSchema;
             schema.parse(formData);
             console.log("Submitting form data:", formData);
@@ -121,19 +137,27 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
             alert("Company registered successfully!");
             setFormData({});
             setShowRegistration(false);
+            onSuccess?.();
         } catch (error) {
             if (error instanceof z.ZodError) {
+                console.log("Validation errors on submit:", error);
                 const newErrors: Record<string, string> = {};
-                console.log("Validation errors:", error);
+                const zodError = error;
                 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                (error as any).errors.forEach((err: any) => {
-                    if (err.path[0]) {
-                        newErrors[err.path[0] as string] = err.message;
+                const issues = zodError.issues || (zodError as any).errors || [];
+
+                issues.forEach((issue) => {
+                    if (issue.path.length > 0) {
+                        const fieldName = issue.path[0] as string;
+                        newErrors[fieldName] = issue.message;
                     }
                 });
+
                 setErrors(newErrors);
                 alert("Please fix the errors before submitting.");
             }
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -157,7 +181,7 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                     }))
                                 }
                             >
-                                <SelectTrigger className="w-full">
+                                <SelectTrigger className={`w-full ${errors.moral_fisica ? "border-red-500" : ""}`}>
                                     <SelectValue placeholder="Seleccione el tipo de cuenta" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -165,6 +189,9 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                     <SelectItem value="fisica">Persona Física</SelectItem>
                                 </SelectContent>
                             </Select>
+                            {errors.moral_fisica && (
+                                <p className="text-xs text-red-500">{errors.moral_fisica}</p>
+                            )}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="pais">Country</Label>
@@ -177,7 +204,7 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                     }))
                                 }
                             >
-                                <SelectTrigger className="w-full">
+                                <SelectTrigger className={`w-full ${errors.pais ? "border-red-500" : ""}`}>
                                     <SelectValue placeholder="Seleccionar país" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -188,6 +215,9 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                     ))}
                                 </SelectContent>
                             </Select>
+                            {errors.pais && (
+                                <p className="text-xs text-red-500">Se necesita seleccionar un país</p>
+                            )}
                         </div>
                     </div>
                     <div className="flex justify-end mt-4">
@@ -268,16 +298,16 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                 </div>
                                 {formData.pais === "MX" ? (
                                     <div className="space-y-2">
-                                        <Label htmlFor="rfc">RFC</Label>
+                                        <Label htmlFor="rfc_entidad_legal">RFC</Label>
                                         <Input
-                                            id="rfc"
-                                            name="rfc"
-                                            value={formData.rfc || ""}
+                                            id="rfc_entidad_legal"
+                                            name="rfc_entidad_legal"
+                                            value={formData.rfc_entidad_legal || ""}
                                             onChange={handleChange}
-                                            className={errors.rfc ? "border-red-500" : ""}
+                                            className={errors.rfc_entidad_legal ? "border-red-500" : ""}
                                         />
-                                        {errors.rfc && (
-                                            <p className="text-xs text-red-500">{errors.rfc}</p>
+                                        {errors.rfc_entidad_legal && (
+                                            <p className="text-xs text-red-500">{errors.rfc_entidad_legal}</p>
                                         )}
                                     </div>
                                 ) : null}
@@ -302,7 +332,11 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                         name="giro_mercantil"
                                         value={formData.giro_mercantil || ""}
                                         onChange={handleChange}
+                                        className={`${errors.giro_mercantil ? "border-red-500" : ""}`}
                                     />
+                                    {errors.giro_mercantil && (
+                                        <p className="text-xs text-red-500">{errors.giro_mercantil}</p>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="csf">Constancia de Situación Fiscal</Label>
@@ -311,10 +345,32 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                         name="csf"
                                         type="file"
                                         onChange={handleFileChange}
+                                        className={errors.csf ? "border-red-500" : ""}
                                     />
+                                    {errors.csf && (
+                                        <p className="text-xs text-red-500">{errors.csf}</p>
+                                    )}
                                     {formData.csf && (
                                         <p className="text-sm text-muted-foreground">
                                             Archivo seleccionado: {(formData.csf as File).name}
+                                        </p>
+                                    )}
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="acta_constitutiva">Acta Constitutiva</Label>
+                                    <Input
+                                        id="acta_constitutiva"
+                                        name="acta_constitutiva"
+                                        type="file"
+                                        onChange={handleFileChange}
+                                        className={errors.acta_constitutiva ? "border-red-500" : ""}
+                                    />
+                                    {errors.acta_constitutiva && (
+                                        <p className="text-xs text-red-500">{errors.acta_constitutiva}</p>
+                                    )}
+                                    {formData.acta_constitutiva && (
+                                        <p className="text-sm text-muted-foreground">
+                                            Archivo seleccionado: {(formData.acta_constitutiva as File).name}
                                         </p>
                                     )}
                                 </div>
@@ -384,7 +440,7 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                             }))
                                         }
                                     >
-                                        <SelectTrigger className="w-full">
+                                        <SelectTrigger className={`w-full ${errors.tipo_documento ? "border-red-500" : ""}`}>
                                             <SelectValue placeholder="Seleccionar..." />
                                         </SelectTrigger>
                                         <SelectContent>
@@ -394,6 +450,9 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                             <SelectItem value="cartilla_militar">Cartilla Militar</SelectItem>
                                         </SelectContent>
                                     </Select>
+                                    {errors.tipo_documento && (
+                                        <p className="text-xs text-red-500">{errors.tipo_documento}</p>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="documento">Legal Document</Label>
@@ -402,7 +461,11 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                         name="documento"
                                         type="file"
                                         onChange={handleFileChange}
+                                        className={errors.documento ? "border-red-500" : ""}
                                     />
+                                    {errors.documento && (
+                                        <p className="text-xs text-red-500">{errors.documento}</p>
+                                    )}
                                     {formData.documento && (
                                         <p className="text-sm text-muted-foreground">
                                             Archivo seleccionado: {(formData.documento as File).name}
@@ -414,9 +477,14 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                     <Input
                                         id="numero_documento"
                                         name="numero_documento"
+                                        type="number"
                                         value={formData.numero_documento || ""}
                                         onChange={handleChange}
+                                        className={errors.numero_documento ? "border-red-500" : ""}
                                     />
+                                    {errors.numero_documento && (
+                                        <p className="text-xs text-red-500">{errors.numero_documento}</p>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="curp">CURP</Label>
@@ -425,7 +493,11 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                         name="curp"
                                         value={formData.curp || ""}
                                         onChange={handleChange}
+                                        className={errors.curp ? "border-red-500" : ""}
                                     />
+                                    {errors.curp && (
+                                        <p className="text-xs text-red-500">{errors.curp}</p>
+                                    )}
                                 </div>
                                 <div className="space-y-2">
                                     <Label htmlFor="rfc">RFC</Label>
@@ -455,13 +527,46 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                     )}
                                 </div>
                                 <div className="space-y-2">
+                                    <Label htmlFor="telefono">Teléfono</Label>
+                                    <Input
+                                        id="telefono"
+                                        name="telefono"
+                                        type="tel"
+                                        value={formData.telefono || ""}
+                                        onChange={handleChange}
+                                        className={errors.telefono ? "border-red-500" : ""}
+                                    />
+                                    {errors.telefono && (
+                                        <p className="text-xs text-red-500">{errors.telefono}</p>
+                                    )}
+                                </div>
+                                <div className="space-y-2">
+                                    <Label htmlFor="nacionalidad">Nacionalidad</Label>
+                                    <Input
+                                        id="nacionalidad"
+                                        name="nacionalidad"
+                                        type="text"
+                                        value={formData.nacionalidad || ""}
+                                        onChange={handleChange}
+                                        className={errors.nacionalidad ? "border-red-500" : ""}
+                                    />
+                                    {errors.nacionalidad && (
+                                        <p className="text-xs text-red-500">{errors.nacionalidad}</p>
+                                    )}
+                                </div>
+
+                                <div className="space-y-2">
                                     <Label htmlFor="csf">Constancia de Situación Fiscal</Label>
                                     <Input
                                         id="csf"
                                         name="csf"
                                         type="file"
                                         onChange={handleFileChange}
+                                        className={errors.csf ? "border-red-500" : ""}
                                     />
+                                    {errors.csf && (
+                                        <p className="text-xs text-red-500">{errors.csf}</p>
+                                    )}
                                     {formData.csf && (
                                         <p className="text-sm text-muted-foreground">
                                             Archivo seleccionado: {(formData.csf as File).name}
@@ -485,15 +590,25 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                             "nombre_compañia",
                                             "nombre_legal_compañia",
                                             "fecha_de_constitucion",
-                                            "rfc",
+                                            "acta_constitutiva",
+                                            "rfc_entidad_legal",
                                             "correo",
+                                            "giro_mercantil",
+                                            "csf"
                                         ]
                                         : [
                                             "nombre_representante_legal",
                                             "apellido_representante_legal",
+                                            "tipo_documento",
+                                            "documento",
+                                            "numero_documento",
                                             "fecha_de_nacimiento",
+                                            "csf",
+                                            "curp",
                                             "rfc",
                                             "correo",
+                                            "telefono",
+                                            "nacionalidad",
                                         ]
                                 )
                             }
@@ -518,7 +633,11 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                             name="direccion"
                             value={formData.direccion || ""}
                             onChange={handleChange}
+                            className={errors.direccion ? "border-red-500" : ""}
                         />
+                        {errors.direccion && (
+                            <p className="text-xs text-red-500">{errors.direccion}</p>
+                        )}
                     </div>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div className="space-y-2">
@@ -528,7 +647,11 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                 name="colonia"
                                 value={formData.colonia || ""}
                                 onChange={handleChange}
+                                className={errors.colonia ? "border-red-500" : ""}
                             />
+                            {errors.colonia && (
+                                <p className="text-xs text-red-500">{errors.colonia}</p>
+                            )}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="codigo_postal">Código Postal</Label>
@@ -537,7 +660,11 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                 name="codigo_postal"
                                 value={formData.codigo_postal || ""}
                                 onChange={handleChange}
+                                className={errors.codigo_postal ? "border-red-500" : ""}
                             />
+                            {errors.codigo_postal && (
+                                <p className="text-xs text-red-500">{errors.codigo_postal}</p>
+                            )}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="ciudad">Ciudad</Label>
@@ -546,7 +673,11 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                 name="ciudad"
                                 value={formData.ciudad || ""}
                                 onChange={handleChange}
+                                className={errors.ciudad ? "border-red-500" : ""}
                             />
+                            {errors.ciudad && (
+                                <p className="text-xs text-red-500">{errors.ciudad}</p>
+                            )}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="estado">Estado</Label>
@@ -555,7 +686,11 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                 name="estado"
                                 value={formData.estado || ""}
                                 onChange={handleChange}
+                                className={errors.estado ? "border-red-500" : ""}
                             />
+                            {errors.estado && (
+                                <p className="text-xs text-red-500">{errors.estado}</p>
+                            )}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="pais">País</Label>
@@ -568,7 +703,7 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                     }))
                                 }
                             >
-                                <SelectTrigger className="w-full">
+                                <SelectTrigger className={`w-full ${errors.pais ? "border-red-500" : ""}`}>
                                     <SelectValue placeholder="Seleccionar país" />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -579,6 +714,9 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                     ))}
                                 </SelectContent>
                             </Select>
+                            {errors.pais && (
+                                <p className="text-xs text-red-500">Se necesita seleccionar un país</p>
+                            )}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="comprobante_domicilio">
@@ -589,7 +727,13 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                 name="comprobante_domicilio"
                                 type="file"
                                 onChange={handleFileChange}
+                                className={errors.comprobante_domicilio ? "border-red-500" : ""}
                             />
+                            {errors.comprobante_domicilio && (
+                                <p className="text-xs text-red-500">
+                                    {errors.comprobante_domicilio}
+                                </p>
+                            )}
                             {formData.comprobante_domicilio && (
                                 <p className="text-sm text-muted-foreground">
                                     Archivo seleccionado: {(formData.comprobante_domicilio as File).name}
@@ -601,7 +745,28 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                         <Button variant="outline" onClick={() => handleBack("general")}>
                             Atrás
                         </Button>
-                        <Button onClick={() => handleNext("address", formData.moral_fisica ? "representative" : "financial", [])}>
+                        <Button onClick={() =>
+                            handleNext("address",
+                                formData.moral_fisica ? "representative" : "financial",
+                                formData.moral_fisica ?
+                                    [
+                                        "direccion",
+                                        "colonia",
+                                        "codigo_postal",
+                                        "ciudad",
+                                        "estado",
+                                        "pais",
+                                        "comprobante_domicilio"
+                                    ] : [
+                                        "direccion",
+                                        "colonia",
+                                        "codigo_postal",
+                                        "ciudad",
+                                        "estado",
+                                        "pais",
+                                        "comprobante_domicilio"
+                                    ]
+                            )}>
                             Siguiente
                         </Button>
                     </div>
@@ -687,7 +852,7 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                     }))
                                 }
                             >
-                                <SelectTrigger className="w-full">
+                                <SelectTrigger className={`w-full ${errors.tipo_documento ? "border-red-500" : ""}`}>
                                     <SelectValue placeholder="Seleccionar..." />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -697,6 +862,9 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                     <SelectItem value="cartilla_militar">Cartilla Militar</SelectItem>
                                 </SelectContent>
                             </Select>
+                            {errors.tipo_documento && (
+                                <p className="text-xs text-red-500">{errors.tipo_documento}</p>
+                            )}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="documento">Legal Document</Label>
@@ -705,7 +873,11 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                 name="documento"
                                 type="file"
                                 onChange={handleFileChange}
+                                className={errors.documento ? "border-red-500" : ""}
                             />
+                            {errors.documento && (
+                                <p className="text-xs text-red-500">{errors.documento}</p>
+                            )}
                             {formData.documento && (
                                 <p className="text-sm text-muted-foreground">
                                     Archivo seleccionado: {(formData.documento as File).name}
@@ -717,9 +889,14 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                             <Input
                                 id="numero_documento"
                                 name="numero_documento"
+                                type="number"
                                 value={formData.numero_documento || ""}
                                 onChange={handleChange}
+                                className={errors.numero_documento ? "border-red-500" : ""}
                             />
+                            {errors.numero_documento && (
+                                <p className="text-xs text-red-500">{errors.numero_documento}</p>
+                            )}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="curp">CURP</Label>
@@ -728,7 +905,11 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                 name="curp"
                                 value={formData.curp || ""}
                                 onChange={handleChange}
+                                className={errors.curp ? "border-red-500" : ""}
                             />
+                            {errors.curp && (
+                                <p className="text-xs text-red-500">{errors.curp}</p>
+                            )}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="rfc">RFC</Label>
@@ -737,7 +918,11 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                 name="rfc"
                                 value={formData.rfc || ""}
                                 onChange={handleChange}
+                                className={errors.rfc ? "border-red-500" : ""}
                             />
+                            {errors.rfc && (
+                                <p className="text-xs text-red-500">{errors.rfc}</p>
+                            )}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="nacionalidad">Nacionalidad</Label>
@@ -746,7 +931,11 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                 name="nacionalidad"
                                 value={formData.nacionalidad || ""}
                                 onChange={handleChange}
+                                className={errors.nacionalidad ? "border-red-500" : ""}
                             />
+                            {errors.nacionalidad && (
+                                <p className="text-xs text-red-500">{errors.nacionalidad}</p>
+                            )}
                         </div>
                     </div>
                     <div className="space-y-2">
@@ -756,7 +945,11 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                             name="poder"
                             type="file"
                             onChange={handleFileChange}
+                            className={errors.poder ? "border-red-500" : ""}
                         />
+                        {errors.poder && (
+                            <p className="text-xs text-red-500">{errors.poder}</p>
+                        )}
                         {formData.poder && (
                             <p className="text-sm text-muted-foreground">
                                 Archivo seleccionado: {(formData.poder as File).name}
@@ -797,7 +990,11 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                 type="number"
                                 value={formData.clabe || ""}
                                 onChange={handleChange}
+                                className={errors.clabe ? "border-red-500" : ""}
                             />
+                            {errors.clabe && (
+                                <p className="text-xs text-red-500">{errors.clabe}</p>
+                            )}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="wallet">Wallet Address</Label>
@@ -815,7 +1012,11 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                 name="origen_recursos"
                                 value={formData.origen_recursos || ""}
                                 onChange={handleChange}
+                                className={errors.origen_recursos ? "border-red-500" : ""}
                             />
+                            {errors.origen_recursos && (
+                                <p className="text-xs text-red-500">{errors.origen_recursos}</p>
+                            )}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="destino_recursos">Destino de Recursos</Label>
@@ -824,7 +1025,11 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                 name="destino_recursos"
                                 value={formData.destino_recursos || ""}
                                 onChange={handleChange}
+                                className={errors.destino_recursos ? "border-red-500" : ""}
                             />
+                            {errors.destino_recursos && (
+                                <p className="text-xs text-red-500">{errors.destino_recursos}</p>
+                            )}
                         </div>
                         <div className="space-y-2">
                             <Label htmlFor="volumen_transaccional">
@@ -836,16 +1041,45 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                                 type="number"
                                 value={formData.volumen_transaccional || ""}
                                 onChange={handleChange}
+                                className={errors.volumen_transaccional ? "border-red-500" : ""}
                             />
+                            {errors.volumen_transaccional && (
+                                <p className="text-xs text-red-500">{errors.volumen_transaccional}</p>
+                            )}
+                        </div>
+                        <div className="space-y-2">
+                            <Label htmlFor="operaciones_approximadas">
+                                Operaciones Approximadas Mensuales
+                            </Label>
+                            <Input
+                                id="operaciones_approximadas"
+                                name="operaciones_approximadas"
+                                type="number"
+                                value={formData.operaciones_approximadas || ""}
+                                onChange={handleChange}
+                                className={errors.operaciones_approximadas ? "border-red-500" : ""}
+                            />
+                            {errors.operaciones_approximadas && (
+                                <p className="text-xs text-red-500">{errors.operaciones_approximadas}</p>
+                            )}
                         </div>
                     </div>
                     <div className="flex justify-between mt-4">
                         <Button variant="outline" onClick={() => handleBack(formData.moral_fisica ? "representative" : "address")}>
                             Atrás
                         </Button>
-                        <Button onClick={handleSubmit} className="w-full md:w-auto">
-                            <Save className="mr-2 h-4 w-4" />
-                            Registrar Compañía
+                        <Button onClick={handleSubmit} className="w-full md:w-auto" disabled={isLoading}>
+                            {isLoading ? (
+                                <>
+                                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                                    Registrando...
+                                </>
+                            ) : (
+                                <>
+                                    <Save className="mr-2 h-4 w-4" />
+                                    Registrar Compañía
+                                </>
+                            )}
                         </Button>
                     </div>
                 </div>
@@ -876,6 +1110,11 @@ export default function RegistrationForm({ user, setShowRegistration }: { user: 
                 }}
                 expanded={true}
             />
+            <div className="mt-5 z-10 text-center">
+                <Button onClick={() => setShowRegistration(false)}>
+                    Cancelar
+                </Button>
+            </div>
         </div>
     );
 }
