@@ -1,6 +1,10 @@
-import { CompanyFormData, PersonFormData } from "@/lib/entities/company";
+import { CompanyFormData } from "@/lib/domain/entities/company";
+import { PersonFormData } from "@/lib/domain/entities/person";
+import { CompanyStructure } from "@/lib/domain/entities/company-structure";
 
-export type FormData = Partial<CompanyFormData & PersonFormData>;
+export type FormData = Partial<CompanyFormData & PersonFormData> & {
+    estructura_societaria?: CompanyStructure[];
+};
 
 export type DocumentType = "pasaporte" | "ine" | "licencia" | "cartilla_militar";
 
@@ -32,10 +36,13 @@ export interface TextFieldProps extends FormFieldProps {
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     type?: "text" | "email" | "tel" | "number" | "date" | "password";
     placeholder?: string;
+    inputMode?: React.HTMLAttributes<HTMLInputElement>["inputMode"];
+    pattern?: string;
 }
 
 export interface FileFieldProps extends FormFieldProps {
     onChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
+    onClear?: () => void;
     fileName?: string;
 }
 

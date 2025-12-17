@@ -1,15 +1,16 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { Building2, MapPin, FileText, Wallet } from "lucide-react";
+import { Building2, MapPin, FileText, Wallet, Users } from "lucide-react";
 import ToolbarExpandable from "@/components/ui/toolbar-expandable";
 import { Button } from "@/components/ui/button";
-import { User } from "@/lib/entities/user";
+import { User } from "@/lib/domain/entities/user";
 import { useRegistrationForm } from "../../lib/hooks/useRegistrationForm";
 import { TypeStep } from "./steps/TypeStep";
 import { GeneralStep } from "./steps/GeneralStep";
 import { AddressStep } from "./steps/AddressStep";
 import { RepresentativeStep } from "./steps/RepresentativeStep";
+import { CompanyStructureStep } from "./steps/CompanyStructure";
 import { FinancialStep } from "./steps/FinancialStep";
 import {
     COMPANY_GENERAL_FIELDS,
@@ -40,6 +41,7 @@ export default function RegistrationForm({
         handleDocumentTypeChange,
         handleFileChange,
         handleAddressChange,
+        handleFieldUpdate,
         handleNext,
         handleBack,
         handleSubmit,
@@ -80,6 +82,8 @@ export default function RegistrationForm({
                         onChange={handleChange}
                         onFileChange={handleFileChange}
                         onDocumentTypeChange={handleDocumentTypeChange}
+                        onAddressChange={handleAddressChange}
+                        onFieldUpdate={handleFieldUpdate}
                         onBack={() => handleBack("type")}
                         onNext={() =>
                             handleNext(
@@ -137,10 +141,28 @@ export default function RegistrationForm({
                         onChange={handleChange}
                         onFileChange={handleFileChange}
                         onDocumentTypeChange={handleDocumentTypeChange}
+                        onFieldUpdate={handleFieldUpdate}
                         onBack={() => handleBack("address")}
                         onNext={() =>
-                            handleNext("financial", [...REPRESENTATIVE_FIELDS])
+                            handleNext("structure", [...REPRESENTATIVE_FIELDS])
                         }
+                    />
+                ),
+            });
+
+            baseSteps.push({
+                id: "structure",
+                title: "Estructura Societaria",
+                description: "Accionistas y participaciones",
+                icon: Users,
+                content: (
+                    <CompanyStructureStep
+                        formData={formData}
+                        errors={errors}
+                        onFieldUpdate={handleFieldUpdate}
+                        onFileChange={handleFileChange}
+                        onBack={() => handleBack("representative")}
+                        onNext={() => handleNext("financial", [])}
                     />
                 ),
             });
@@ -158,7 +180,7 @@ export default function RegistrationForm({
                     isLoading={isLoading}
                     onChange={handleChange}
                     onSelectChange={handleSelectChange}
-                    onBack={() => handleBack(isMoral ? "representative" : "address")}
+                    onBack={() => handleBack(isMoral ? "structure" : "address")}
                     onSubmit={handleSubmit}
                 />
             ),
@@ -176,6 +198,7 @@ export default function RegistrationForm({
         handleDocumentTypeChange,
         handleFileChange,
         handleAddressChange,
+        handleFieldUpdate,
         handleSameAddressChange,
         handleNext,
         handleBack,

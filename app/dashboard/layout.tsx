@@ -1,4 +1,4 @@
-import { getUser } from "@/app/actions/user";
+import { getUser } from "@/lib/actions/user";
 import { AppSidebar } from "@/components/app-sidebar";
 import { redirect } from "next/navigation";
 

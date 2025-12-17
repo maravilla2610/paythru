@@ -7,8 +7,8 @@ import { columns } from "@/components/dashboard/columns"
 import RegistrationForm from "@/components/register_company/registration-form"
 import { Button } from "@/components/ui/button"
 import { Plus, X } from "lucide-react"
-import { User } from "@/lib/entities/user"
-import { CompanyFormData as Company } from "@/lib/entities/company"
+import { User } from "@/lib/domain/entities/user"
+import { CompanyFormData as Company } from "@/lib/domain/entities/company"
 import { ScrollArea } from "@/components/ui/scroll-area"
 
 interface DashboardViewProps {

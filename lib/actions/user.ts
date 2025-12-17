@@ -1,7 +1,7 @@
 'use server'
 
-import { createClient } from '@/lib/supabase/server'
-import { User } from '@/lib/entities/user'
+import { createClient } from '@/lib/providers/supabase/server'
+import { User } from '@/lib/domain/entities/user'
 
 export async function getUser(): Promise<User | null> {
     const supabase = await createClient()

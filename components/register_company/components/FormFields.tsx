@@ -10,7 +10,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from "@/components/ui/select";
-import { TextFieldProps, FileFieldProps, SelectFieldProps } from "../types";
+import { TextFieldProps, FileFieldProps, SelectFieldProps } from "../../../lib/types/register-types";
 
 export function TextField({
     id,
@@ -20,6 +20,8 @@ export function TextField({
     error,
     type = "text",
     placeholder,
+    inputMode,
+    pattern,
     required,
 }: TextFieldProps) {
     return (
@@ -35,6 +37,8 @@ export function TextField({
                 value={value}
                 onChange={onChange}
                 placeholder={placeholder}
+                inputMode={inputMode}
+                pattern={pattern}
                 className={error ? "border-red-500" : ""}
             />
             {error && <p className="text-xs text-red-500">{error}</p>}
@@ -77,6 +81,7 @@ export function FileField({
     id,
     label,
     onChange,
+    onClear,
     error,
     fileName,
     required,
@@ -96,9 +101,18 @@ export function FileField({
             />
             {error && <p className="text-xs text-red-500">{error}</p>}
             {fileName && (
-                <p className="text-sm text-muted-foreground">
-                    Archivo seleccionado: {fileName}
-                </p>
+                <div className="flex items-center justify-between text-sm text-muted-foreground">
+                    <p>Archivo seleccionado: {fileName}</p>
+                    {onClear && (
+                        <button
+                            type="button"
+                            onClick={onClear}
+                            className="text-red-500 hover:text-red-700 text-xs underline"
+                        >
+                            Eliminar
+                        </button>
+                    )}
+                </div>
             )}
         </div>
     );

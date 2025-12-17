@@ -15,7 +15,7 @@ import {
   FieldLabel,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { login } from "@/app/actions/auth"
+import { login } from "@/lib/actions/auth"
 import { useActionState } from "react"
 
 interface LoginFormProps extends React.ComponentProps<"div"> {

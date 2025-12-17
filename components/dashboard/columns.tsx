@@ -1,7 +1,7 @@
 "use client"
 
 import { ColumnDef } from "@tanstack/react-table"
-import { CompanyFormData } from "@/lib/entities/company"
+import { CompanyFormData } from "@/lib/domain/entities/company"
 
 export const columns: ColumnDef<CompanyFormData>[] = [
   {

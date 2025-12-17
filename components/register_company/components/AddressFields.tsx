@@ -4,8 +4,8 @@ import React from "react";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { TextField, FileField, CountrySelectField } from "./FormFields";
-import { AddressType, FormData } from "../types";
-import { countries } from "@/lib/entities/countries";
+import { AddressType, FormData } from "../../../lib/types/register-types";
+import { countries } from "@/lib/domain/entities/countries";
 
 interface AddressFieldsProps {
     addressType: AddressType;

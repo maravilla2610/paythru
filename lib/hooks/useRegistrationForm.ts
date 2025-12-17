@@ -4,14 +4,16 @@ import { useState, useEffect, useCallback } from "react";
 import { z } from "zod";
 import {
     companySchema,
-    personSchema,
     CompanyFormData,
+} from "@/lib/domain/entities/company";
+import { CompanyStructure } from "@/lib/domain/entities/company-structure";
+import {
+    personSchema,
     PersonFormData,
-    direccion_completa,
-    direccion,
-} from "@/lib/entities/company";
-import { registerCompany } from "@/app/actions/register-company";
-import { FormData, AddressType, DocumentType } from "../../components/register_company/types";
+} from "@/lib/domain/entities/person";
+import { direccion, direccion_completa } from "@/lib/domain/entities/address";
+import { registerCompany } from "@/lib/actions/register-company";
+import { FormData, AddressType, DocumentType } from "../types/register-types";
 
 interface UseRegistrationFormProps {
     userId?: number;
@@ -30,7 +32,6 @@ export function useRegistrationForm({ userId, onSuccess, onClose }: UseRegistrat
     const [sameAddress, setSameAddress] = useState(false);
     const [activeStep, setActiveStep] = useState<string | null>("type");
 
-    // Sync operational address with fiscal when sameAddress is true
     useEffect(() => {
         if (sameAddress && formData.moral && formData.direccion_fiscal) {
             setFormData((prev) => ({
@@ -61,15 +62,14 @@ export function useRegistrationForm({ userId, onSuccess, onClose }: UseRegistrat
         e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
     ) => {
         const { name, value, type } = e.target;
-        let parsedValue: string | number | boolean | undefined | Date = value;
 
-        if (type === "checkbox") {
-            parsedValue = (e.target as HTMLInputElement).checked;
-        } else if (type === "number") {
-            parsedValue = value === "" ? undefined : Number(value);
-        } else if (type === "date") {
-            parsedValue = value ? new Date(value) : undefined;
-        }
+        // Preserve strings for text inputs like CLABE to keep leading zeros.
+        const parsedValue: string | number | boolean | undefined | Date = (() => {
+            if (type === "checkbox") return (e.target as HTMLInputElement).checked;
+            if (type === "number") return value === "" ? undefined : Number(value);
+            if (type === "date") return value ? new Date(value) : undefined;
+            return value;
+        })();
 
         setFormData((prev) => ({
             ...prev,
@@ -240,6 +240,17 @@ export function useRegistrationForm({ userId, onSuccess, onClose }: UseRegistrat
         }
     }, [formData.direccion_fiscal]);
 
+    const handleFieldUpdate = useCallback((
+        field: string,
+        value: string | number | boolean | Date | CompanyStructure[] | undefined
+    ) => {
+        setFormData((prev) => ({
+            ...prev,
+            [field]: value,
+        }));
+        clearFieldError(field);
+    }, [clearFieldError]);
+
     return {
         formData,
         setFormData,
@@ -253,6 +264,7 @@ export function useRegistrationForm({ userId, onSuccess, onClose }: UseRegistrat
         handleDocumentTypeChange,
         handleFileChange,
         handleAddressChange,
+        handleFieldUpdate,
         handleNext,
         handleBack,
         handleSubmit,

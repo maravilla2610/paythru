@@ -3,9 +3,9 @@
 import React from "react";
 import { SelectField, CountrySelectField } from "../components/FormFields";
 import { StepNavigation } from "../components/StepNavigation";
-import { FormData } from "../types";
+import { FormData } from "../../../lib/types/register-types";
 import { ACCOUNT_TYPES } from "../constants";
-import { countries } from "@/lib/entities/countries";
+import { countries } from "@/lib/domain/entities/countries";
 
 interface TypeStepProps {
     formData: FormData;

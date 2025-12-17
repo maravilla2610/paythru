@@ -9,9 +9,9 @@ import {
 } from "@tabler/icons-react";
 import { motion } from "motion/react";
 import { cn } from "@/lib/utils";
-import { User } from "@/lib/entities/user";
+import { User } from "@/lib/domain/entities/user";
 import Link from "next/link";
-import { logout } from "@/app/actions/auth";
+import { logout } from "@/lib/actions/auth";
 
 interface AppSidebarProps {
     children: React.ReactNode;

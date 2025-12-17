@@ -4,7 +4,7 @@ import React from "react";
 import { Label } from "@/components/ui/label";
 import { AddressFields } from "../components/AddressFields";
 import { StepNavigation } from "../components/StepNavigation";
-import { FormData, AddressType } from "../types";
+import { FormData, AddressType } from "../../../lib/types/register-types";
 
 interface AddressStepProps {
     formData: FormData;
@@ -59,16 +59,18 @@ export function AddressStep({
                     </div>
 
                     {!sameAddress && (
-                        <AddressFields
-                            addressType="direccion_operativa"
-                            formData={formData}
-                            errors={errors}
-                            onAddressChange={onAddressChange}
-                            onFileChange={onFileChange}
-                            title=""
-                            fileFieldName="comprobante_domicilio_operativo"
-                            fileFieldLabel="Comprobante de Domicilio Operativo"
-                        />
+                        <>
+                            <AddressFields
+                                addressType="direccion_operativa"
+                                formData={formData}
+                                errors={errors}
+                                onAddressChange={onAddressChange}
+                                onFileChange={onFileChange}
+                                title=""
+                                fileFieldName="comprobante_domicilio_operativo"
+                                fileFieldLabel="Comprobante de Domicilio Operativo (sube una imagen para autocompletar)"
+                            />
+                        </>
                     )}
                 </div>
             )}

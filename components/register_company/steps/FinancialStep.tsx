@@ -3,6 +3,7 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { FINANCIAL_INSTITUTIONS, FinancialInstitutionCode } from "@/lib/domain/enums/financial-institutions";
 import {
     Select,
     SelectContent,
@@ -12,7 +13,7 @@ import {
 } from "@/components/ui/select";
 import { TextField, SelectField } from "../components/FormFields";
 import { StepNavigation } from "../components/StepNavigation";
-import { FormData } from "../types";
+import { FormData } from "../../../lib/types/register-types";
 import {
     ORIGEN_RECURSOS_OPTIONS,
     DESTINO_RECURSOS_OPTIONS,
@@ -41,15 +42,31 @@ export function FinancialStep({
 }: FinancialStepProps) {
     const isMoral = formData.moral;
 
+    const handleClabeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        onChange(e);
+
+        const digits = e.target.value.replace(/\D/g, "");
+
+        if (digits.length >= 3) {
+            const bankCode = digits.slice(0, 3);
+            const institution = FINANCIAL_INSTITUTIONS[bankCode as FinancialInstitutionCode];
+            onSelectChange("nombre_institucion_clabe", institution ? institution : "");
+        } else if (!digits) {
+            onSelectChange("nombre_institucion_clabe", "");
+        }
+    };
+
     return (
         <div className="grid gap-4 py-4">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <TextField
                     id="clabe"
                     label="CLABE"
-                    type="number"
-                    value={formData.clabe?.toString() || ""}
-                    onChange={onChange}
+                    type="text"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
+                    value={formData.clabe || ""}
+                    onChange={handleClabeChange}
                     error={errors.clabe}
                     required
                 />

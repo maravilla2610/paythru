@@ -1,7 +1,7 @@
 "use client";
 
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuPositioner, DropdownMenuTrigger } from "@/components/ui/dropdown-menu"
-import { User } from "@/lib/entities/user"
+import { User } from "@/lib/domain/entities/user"
 
 export default function Navigation({ user }: { user: User }) {
     const initial = user.nombre ? user.nombre.charAt(0).toUpperCase() : "U";

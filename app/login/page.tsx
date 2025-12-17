@@ -1,7 +1,7 @@
 
 import { LoginForm } from "@/components/login-form"
 import Image from "next/image"
-import { createClient } from "@/lib/supabase/server"
+import { createClient } from "@/lib/providers/supabase/server"
 import { redirect } from "next/navigation"
 
 export default async function LoginPage() {
