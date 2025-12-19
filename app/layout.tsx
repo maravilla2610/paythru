@@ -25,7 +25,7 @@ const cySans = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Bitrus OTC - Institutional Crypto Trading Desk",
+  title: "Boost OTC - Institutional Crypto Trading Desk",
   description: "Execute large-volume cryptocurrency trades with deep liquidity, competitive pricing, and white-glove service. Trusted OTC desk for institutions, funds, and high-net-worth individuals.",
 };
 

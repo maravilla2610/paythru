@@ -11,7 +11,7 @@ export const personSchema = z.object({
     direccion_fiscal: direccion,
     direccion_fiscal_completa: z.string().optional(),
     comprobante_domicilio_fiscal: z.file(),
-    correo: z.email('Invalid email address'),
+    correo: z.email().optional(),
     nombre_representante_legal: z.string().min(1, 'Legal representative name is required'),
     apellido_representante_legal: z.string().min(1, 'Legal representative surname is required'),
     numero_documento: z.number().optional(),

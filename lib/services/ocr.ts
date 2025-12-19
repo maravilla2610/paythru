@@ -463,7 +463,6 @@ export class TextractService {
                 return value ? this.parseAddress(value) : undefined;
             })(),
         };
-        console.log("Company Data Built:", data);
 
         if (!data.nombre_legal_compañia) {
             data.nombre_legal_compañia = find([this.containsAny(["razon"])]) || undefined;

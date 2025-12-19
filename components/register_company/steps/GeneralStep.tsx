@@ -97,7 +97,6 @@ export function GeneralStep({
 
             try {
                 const result = await extractCsfData(file, isMoral || false);
-                console.log("OCR Result:", result);
 
                 if (result.success && result.data) {
                     if (isMoral) {
@@ -214,14 +213,6 @@ function CompanyGeneralFields({
                 required
             />
             <FileField
-                id="cid"
-                label="Cedula de Identificación"
-                onChange={onFileChange}
-                error={errors.cid}
-                fileName={(formData.cid as File)?.name}
-                required
-            />
-            <FileField
                 id="acta_asamblea"
                 label="Acta de Asamblea"
                 onChange={onFileChange}
@@ -274,7 +265,6 @@ function CompanyGeneralFields({
                 value={formData.correo || ""}
                 onChange={onChange}
                 error={errors.correo}
-                required
             />
             <TextField
                 id="giro_mercantil"
@@ -428,7 +418,6 @@ function PersonGeneralFields({
                 value={formData.correo || ""}
                 onChange={onChange}
                 error={errors.correo}
-                required
             />
             <TextField
                 id="telefono"
@@ -446,14 +435,14 @@ function PersonGeneralFields({
 
             <TextField
                 id="e_firma"
-                label="E-Firma"
+                label="E-Firma (Opcional)"
                 value={formData.e_firma || ""}
                 onChange={onChange}
                 error={errors.e_firma}
             />
             <TextField
                 id="no_sello"
-                label="Numero de Sello SAT"
+                label="Numero de Sello SAT (Opcional)"
                 value={formData.no_sello || ""}
                 onChange={onChange}
                 error={errors.no_sello}

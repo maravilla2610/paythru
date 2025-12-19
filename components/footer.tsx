@@ -12,7 +12,7 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Company Info */}
           <div className="space-y-4">
-            <Image src="/boost-logo.png" alt="Bitrus OTC Logo" width={100} height={33} />
+            <Image src="/boost-logo.png" alt="Boost OTC Logo" width={100} height={33} />
             <p className="text-gray-400 text-sm">
               Institutional-grade crypto OTC trading desk. Execute large-volume trades with deep liquidity and white-glove service.
             </p>

@@ -45,9 +45,20 @@ const ROL_CONSEJO_OPTIONS = [
 ];
 
 export function CompanyStructureStep({ formData, errors, onFieldUpdate, onFileChange, onBack, onNext }: CompanyStructureStepProps) {
+	const representativeName = [
+		formData.nombre_representante_legal,
+		formData.apellido_representante_legal
+	].filter(Boolean).join(" ");
+
 	const initialMembers = formData.estructura_societaria?.length
 		? formData.estructura_societaria.map((member) => ({ proveedor_recursos: false, ...member }))
-		: [{ ...DEFAULT_MEMBER }];
+		: [{ 
+			...DEFAULT_MEMBER, 
+			nombre_completo: representativeName,
+			apoderado: !!representativeName,
+			documento: formData.documento,
+			poder: formData.poder,
+		}];
 
 	const [members, setMembers] = useState<CompanyStructure[]>(initialMembers);
 	const [rowErrors, setRowErrors] = useState<Record<number, string>>({});

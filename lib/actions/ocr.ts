@@ -49,7 +49,6 @@ export async function extractDocumentData(file: File): Promise<OCRResult<Documen
         try {
             const { keyValues, documentText } = await textractService.extractArtifacts(file);
             const data = textractService.buildPersonData(keyValues, documentText);
-            console.log("Extracted Key-Values:", keyValues);
             return { success: true, data, rawText: documentText };
         } catch (error) {
             return {
@@ -75,8 +74,6 @@ export async function extractCsfData(file: File, isMoral: boolean): Promise<OCRR
     const textractService= new TextractService();
     try {
         const { keyValues, documentText } = await textractService.extractArtifacts(file);
-        console.log("Extracted Key-Values:", keyValues);
-        console.log("Extracted Document Text:", documentText);
         if (isMoral) {
             const data = textractService.buildCompanyData(keyValues);
             return { success: true, data, rawText: documentText };

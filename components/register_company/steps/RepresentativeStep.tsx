@@ -5,7 +5,7 @@ import { TextField, DateField, FileField, SelectField } from "../components/Form
 import { StepNavigation } from "../components/StepNavigation";
 import { FormData, DocumentType, AddressType } from "../../../lib/types/register-types";
 import { DOCUMENT_TYPES } from "../constants";
-import { extractCsfData, extractDocumentData } from "@/lib/actions/ocr";
+import { extractDocumentData } from "@/lib/actions/ocr";
 import { Address } from "@/lib/domain/entities/address";
 import { DocumentImp } from "@/lib/types/ocr-types";
 interface RepresentativeStepProps {
@@ -75,7 +75,6 @@ export function RepresentativeStep({
 
             try {
                 const result = await extractDocumentData(file);
-                console.log("OCR Result:", result);
 
                 if (result.success && result.data) {
                     applyPersonData(result.data);

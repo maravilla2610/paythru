@@ -33,6 +33,7 @@ export async function login(prevState: { error?: string, message?: string } | nu
         email,
         options: {
             emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm`,
+            shouldCreateUser: true
         },
     })
 

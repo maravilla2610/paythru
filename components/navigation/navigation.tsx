@@ -15,7 +15,7 @@ export default function Navigation({ user }: { user: User }) {
             </DropdownMenuTrigger>
             <DropdownMenuPositioner>
                 <DropdownMenuContent>
-                    <DropdownMenuItem onClick={() => { console.log("Profile") }}>Profile</DropdownMenuItem>
+                    <DropdownMenuItem >Profile</DropdownMenuItem>
                     <DropdownMenuItem>Billing</DropdownMenuItem>
                     <DropdownMenuItem>Team</DropdownMenuItem>
                     <DropdownMenuItem>Subscription</DropdownMenuItem>
