@@ -200,9 +200,7 @@ export function useRegistrationForm({ userId, onSuccess, onClose }: UseRegistrat
 
             const supabase = createClient();
             const service = new RegisterCompanyService(supabase);
-            console.log("Submission data:", submissionData);
             const dataWithFiles = await service.uploadAllFiles(submissionData as unknown as Record<string, unknown>);
-            console.log("Data with files:", dataWithFiles);
 
             await registerCompany(dataWithFiles as CompanyFormData | PersonFormData);
 

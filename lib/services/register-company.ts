@@ -48,7 +48,6 @@ export class RegisterCompanyService {
 
         if (Array.isArray(processedData["estructura_societaria"])) {
             const structureMembers = processedData["estructura_societaria"] as CompanyStructure[];
-            console.log("Uploading structure member documents:", structureMembers);
             const updatedMembers = await Promise.all(structureMembers.map(async (member, index) => {
                 const newMember = { ...member };
                 
@@ -117,7 +116,6 @@ export class RegisterCompanyService {
 
     private async persistStructureMembers (companyId: number, userId: number): Promise<void> {
         if (this.structureMembers.length === 0) {
-            console.log("No structure members to persist.");
             return;
         }
             
@@ -161,7 +159,6 @@ export class RegisterCompanyService {
                 documento: uploads.documento,
                 poder: uploads.poder,
             });
-            console.log("Inserted structure member:", data);
             if (error) {
                 console.error("CompanyStructure insert error", error);
                 throw new Error(`Error registering structure member: ${member.nombre_completo}`);
