@@ -13,6 +13,8 @@ import {
 } from "@/lib/domain/entities/person";
 import { direccion, direccion_completa } from "@/lib/domain/entities/address";
 import { registerCompany } from "@/lib/actions/register-company";
+import { createClient } from "@/lib/providers/supabase/client";
+import { RegisterCompanyService } from "@/lib/services/register-company";
 import { FormData, AddressType, DocumentType } from "../types/register-types";
 
 interface UseRegistrationFormProps {
@@ -196,7 +198,13 @@ export function useRegistrationForm({ userId, onSuccess, onClose }: UseRegistrat
             const schema = submissionData.moral ? companySchema : personSchema;
             schema.parse(submissionData);
 
-            await registerCompany(submissionData as CompanyFormData | PersonFormData);
+            const supabase = createClient();
+            const service = new RegisterCompanyService(supabase);
+            console.log("Submission data:", submissionData);
+            const dataWithFiles = await service.uploadAllFiles(submissionData as unknown as Record<string, unknown>);
+            console.log("Data with files:", dataWithFiles);
+
+            await registerCompany(dataWithFiles as CompanyFormData | PersonFormData);
 
             alert("Company registered successfully!");
             setFormData({});
@@ -217,6 +225,9 @@ export function useRegistrationForm({ userId, onSuccess, onClose }: UseRegistrat
 
                 setErrors(newErrors);
                 alert("Please fix the errors before submitting.");
+            } else {
+                console.error(error);
+                alert("An error occurred while registering the company.");
             }
         } finally {
             setIsLoading(false);

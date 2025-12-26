@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { direccion } from './address';
+import { fileOrString, optionalFileOrString } from './file-schema';
 
 export const personSchema = z.object({
     fecha_de_nacimiento: z.date().min(1, 'Date of establishment is required'),
@@ -10,7 +11,7 @@ export const personSchema = z.object({
     no_sello: z.string().optional(),
     direccion_fiscal: direccion,
     direccion_fiscal_completa: z.string().optional(),
-    comprobante_domicilio_fiscal: z.file(),
+    comprobante_domicilio_fiscal: fileOrString,
     correo: z.email().optional(),
     nombre_representante_legal: z.string().min(1, 'Legal representative name is required'),
     apellido_representante_legal: z.string().min(1, 'Legal representative surname is required'),
@@ -21,12 +22,12 @@ export const personSchema = z.object({
         'licencia',
         'cartilla_militar'
     ]),
-    documento: z.file(),
-    csf:  z.file(),
-    contrato: z.file().optional(),
-    kyc: z.file().optional(),
-    manifestacion: z.file().optional(),
-    firma: z.file().optional(),
+    documento: fileOrString,
+    csf:  fileOrString,
+    contrato: optionalFileOrString,
+    kyc: optionalFileOrString,
+    manifestacion: optionalFileOrString,
+    firma: optionalFileOrString,
     user_id: z.number().min(1, 'User ID is required'),
     origen: z.enum([
         'boost',

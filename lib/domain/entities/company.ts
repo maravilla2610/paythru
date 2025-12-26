@@ -1,6 +1,7 @@
 import { z } from 'zod';
 import { direccion } from './address';
 import { companyStructureSchema } from './company-structure';
+import { fileOrString, optionalFileOrString } from './file-schema';
 
 
 export const companySchema = z.object({
@@ -17,8 +18,8 @@ export const companySchema = z.object({
     direccion_fiscal_completa: z.string().min(1, 'Complete fiscal address is required'),
     direccion_operativa: direccion,
     direccion_operativa_completa: z.string().min(1, 'Complete operational address is required'),
-    comprobante_domicilio_fiscal: z.file(),
-    comprobante_domicilio_operativo: z.file().optional(),
+    comprobante_domicilio_fiscal: fileOrString,
+    comprobante_domicilio_operativo: optionalFileOrString,
     correo: z.email().optional(),
     nombre_representante_legal: z.string().min(1, 'Legal representative name is required'),
     apellido_representante_legal: z.string().min(1, 'Legal representative surname is required'),
@@ -30,14 +31,14 @@ export const companySchema = z.object({
         'cartilla_militar'
     ]),
     rfc_entidad_legal: z.string().min(1, 'Legal entity RFC is required'),
-    documento: z.file(),
-    poder: z.file(),
-    acta_constitutiva: z.file(),
-    csf:  z.file(),
-    contrato: z.file().optional(),
-    kyc: z.file().optional(),
-    manifestacion: z.file().optional(),
-    firma: z.file().optional(),
+    documento: fileOrString,
+    poder: fileOrString,
+    acta_constitutiva: fileOrString,
+    csf:  fileOrString,
+    contrato: optionalFileOrString,
+    kyc: optionalFileOrString,
+    manifestacion: optionalFileOrString,
+    firma: optionalFileOrString,
     user_id: z.number().min(1, 'User ID is required'),
     origen: z.enum([
         'boost',
@@ -58,7 +59,7 @@ export const companySchema = z.object({
     clabe: z.string().regex(/^\d{18}$/, 'CLABE must be exactly 18 digits'),
     wallet: z.string().optional(),
     estructura_societaria: z.array(companyStructureSchema),
-    acta_asamblea: z.file().optional(),
+    acta_asamblea: optionalFileOrString,
 })
 
 export type CompanyFormData = z.infer<typeof companySchema>;

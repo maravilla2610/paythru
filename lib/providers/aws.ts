@@ -1,6 +1,7 @@
 
 import { S3Client } from "@aws-sdk/client-s3";
 import { TextractClient } from "@aws-sdk/client-textract";
+import { SESClient } from "@aws-sdk/client-ses";
 
 export class AwsClient {
     private s3Client: S3Client;
@@ -10,6 +11,7 @@ export class AwsClient {
         bucket?: string;
     };
     private textractClient: TextractClient;
+    private sesClient: SESClient;
 
     constructor() {
         const region = process.env.AWS_REGION || process.env.AWS_DEFAULT_REGION || "us-east-1";
@@ -28,12 +30,17 @@ export class AwsClient {
         const baseClientConfig = credentials ? { region, credentials } : { region };
         this.s3Client = new S3Client(baseClientConfig);
         this.textractClient = new TextractClient(baseClientConfig);
+        this.sesClient = new SESClient(baseClientConfig);
     }
     getS3Client(): S3Client {
         return this.s3Client;
     }
     getTextractClient(): TextractClient {
         return this.textractClient;
+    }
+
+    getSesClient(): SESClient {
+        return this.sesClient;
     }
 
     getAwsConfig() {

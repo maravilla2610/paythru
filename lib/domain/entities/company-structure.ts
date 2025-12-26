@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { optionalFileOrString } from './file-schema';
 
 export const companyStructureSchema = z.object({
     nombre_completo: z.string().min(1, 'Full name is required'),
@@ -13,8 +14,8 @@ export const companyStructureSchema = z.object({
     propietario: z.boolean('Must be a boolean value'),
     apoderado: z.boolean('Must be a boolean value'),
     rol: z.string().optional(),
-    documento: z.file().optional(),
-    poder: z.file().optional(),
+    documento: optionalFileOrString,
+    poder: optionalFileOrString,
     proveedor_recursos: z.boolean('Must be a boolean value').optional(),
 });
 
