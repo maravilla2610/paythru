@@ -173,7 +173,7 @@ export class RegisterCompanyService {
         memberName: string, 
         docType: "documento" | "poder"
     ): Promise<string> {
-        const filePath = `private/${userId}/${Date.now()}_estructura_societaria_${index}_${docType}`;
+        const filePath = `private/${userId}/${Date.now()}_v2_estructura_societaria_${index}_${docType}`;
         const { error: uploadError } = await this.supabase.storage
             .from("documentos")
             .upload(filePath, file, {
