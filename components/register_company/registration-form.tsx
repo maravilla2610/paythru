@@ -12,11 +12,20 @@ import { AddressStep } from "./steps/AddressStep";
 import { RepresentativeStep } from "./steps/RepresentativeStep";
 import { CompanyStructureStep } from "./steps/CompanyStructure";
 import { FinancialStep } from "./steps/FinancialStep";
+import { MultiStepLoader } from "@/components/ui/multi-step-loader";
 import {
     COMPANY_GENERAL_FIELDS,
     PERSON_GENERAL_FIELDS,
     REPRESENTATIVE_FIELDS,
 } from "./constants";
+
+const loadingStates = [
+    { text: "Validating company information" },
+    { text: "Verifying documents" },
+    { text: "Registering legal representative" },
+    { text: "Creating company structure" },
+    { text: "Finalizing registration" },
+];
 
 interface RegistrationFormProps {
     user: User | null;
@@ -229,6 +238,7 @@ export default function RegistrationForm({
                     Cancelar
                 </Button>
             </div>
+            <MultiStepLoader loadingStates={loadingStates} loading={isLoading} duration={2000} />
         </div>
     );
 }

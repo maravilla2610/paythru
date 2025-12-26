@@ -16,6 +16,9 @@ import { registerCompany } from "@/lib/actions/register-company";
 import { createClient } from "@/lib/providers/supabase/client";
 import { RegisterCompanyService } from "@/lib/services/register-company";
 import { FormData, AddressType, DocumentType } from "../types/register-types";
+import { toast } from "sonner"
+import { triggerFireworks } from "@/lib/utils";
+
 
 interface UseRegistrationFormProps {
     userId?: number;
@@ -204,7 +207,8 @@ export function useRegistrationForm({ userId, onSuccess, onClose }: UseRegistrat
 
             await registerCompany(dataWithFiles as CompanyFormData | PersonFormData);
 
-            alert("Company registered successfully!");
+            toast.success("Company registered successfully!");
+            triggerFireworks();
             setFormData({});
             onClose();
             onSuccess?.();
@@ -222,10 +226,10 @@ export function useRegistrationForm({ userId, onSuccess, onClose }: UseRegistrat
                 });
 
                 setErrors(newErrors);
-                alert("Please fix the errors before submitting.");
+                toast.error("Please fix the errors before submitting.");
             } else {
                 console.error(error);
-                alert("An error occurred while registering the company.");
+                toast.error("An error occurred while registering the company.");
             }
         } finally {
             setIsLoading(false);

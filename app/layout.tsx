@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import localFont from "next/font/local";
+import { Toaster } from "@/components/ui/sonner"
 import "./globals.css";
 
 const cySans = localFont({
@@ -40,6 +41,7 @@ export default function RootLayout({
         className={`${cySans.variable} antialiased`}
       >
         {children}
+        <Toaster />
       </body>
     </html>
   );
