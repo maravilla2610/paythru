@@ -3,7 +3,7 @@
 import React from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { FINANCIAL_INSTITUTIONS, FinancialInstitutionCode } from "@/lib/domain/enums/financial-institutions";
+import { FINANCIAL_INSTITUTIONS, FinancialInstitutionCode } from "@/lib/domain/entities/financial-institutions";
 import {
     Select,
     SelectContent,

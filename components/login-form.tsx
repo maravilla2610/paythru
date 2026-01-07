@@ -16,7 +16,8 @@ import {
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
 import { login } from "@/lib/actions/auth"
-import { useActionState } from "react"
+import { useActionState, useEffect } from "react"
+import { useSearchParams } from "next/navigation"
 
 interface LoginFormProps extends React.ComponentProps<"div"> {
   mode?: "login" | "signup"
@@ -36,6 +37,18 @@ export function LoginForm({
   className,
   ...props
 }: LoginFormProps) {
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const email = searchParams.get('email')
+    const crmId = searchParams.get('lead_id')
+
+    if (email || crmId) {
+      localStorage.setItem('new_onboarding_email', email || '')
+      localStorage.setItem('crm_lead_id', crmId || '')
+    }
+  }, [searchParams])
+
   const [state, formAction, isPending] = useActionState(
     login,
     null

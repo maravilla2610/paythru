@@ -18,6 +18,8 @@ import { RegisterCompanyService } from "@/lib/services/register-company";
 import { FormData, AddressType, DocumentType } from "../types/register-types";
 import { toast } from "sonner"
 import { triggerFireworks } from "@/lib/utils";
+import { updateCrmStatus } from "@/lib/actions/crm";
+import { CrmStatus } from "@/lib/domain/enums/crm-status";
 
 
 interface UseRegistrationFormProps {
@@ -52,6 +54,13 @@ export function useRegistrationForm({ userId, onSuccess, onClose }: UseRegistrat
             }));
         }
     }, [sameAddress, formData.direccion_fiscal, formData.moral]);
+
+    useEffect(() => {
+        const crmId = localStorage.getItem('crm_lead_id');
+        if (crmId) {
+            updateCrmStatus(crmId, CrmStatus.started);
+        }
+    }, []);
 
     const clearFieldError = useCallback((fieldName: string) => {
         if (errors[fieldName]) {
@@ -206,6 +215,13 @@ export function useRegistrationForm({ userId, onSuccess, onClose }: UseRegistrat
             const dataWithFiles = await service.uploadAllFiles(submissionData as unknown as Record<string, unknown>);
 
             await registerCompany(dataWithFiles as CompanyFormData | PersonFormData);
+
+            const crmId = localStorage.getItem('crm_lead_id');
+            if (crmId) {
+                await updateCrmStatus(crmId, CrmStatus.completed);
+                localStorage.removeItem('crm_lead_id');
+                localStorage.removeItem('new_onboarding_email');
+            }
 
             toast.success("Company registered successfully!");
             triggerFireworks();
