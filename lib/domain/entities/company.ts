@@ -41,6 +41,7 @@ export const companySchema = z.object({
     firma: optionalFileOrString,
     user_id: z.number().min(1, 'User ID is required'),
     origen: z.enum([
+        'paythru',
         'boost',
         'bitrus',
         'lite'

@@ -238,7 +238,7 @@ export const NavbarLogo = () => {
       href="#"
       className="relative z-20 mr-4 flex items-center space-x-2 px-2 py-1 text-sm font-normal"
     >
-      <Image src="/boost-logo.png" alt="Bitrus Logo" width={80} height={30} />
+      <h1 className="text-xl font-bold text-white">Paythru</h1>
     </a>
   );
 };

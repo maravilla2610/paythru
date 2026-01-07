@@ -30,7 +30,7 @@ interface UseRegistrationFormProps {
 
 export function useRegistrationForm({ userId, onSuccess, onClose }: UseRegistrationFormProps) {
     const [formData, setFormData] = useState<FormData>({
-        origen: "boost",
+        origen: "paythru",
         moral: false,
         user_id: userId,
     });

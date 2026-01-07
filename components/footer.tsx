@@ -12,7 +12,7 @@ export const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 mb-8">
           {/* Company Info */}
           <div className="space-y-4">
-            <Image src="/boost-logo.png" alt="Boost OTC Logo" width={100} height={33} />
+            <h3 className="text-white text-lg font-semibold">Paythru</h3>
             <p className="text-gray-400 text-sm">
               Institutional-grade crypto OTC trading desk. Execute large-volume trades with deep liquidity and white-glove service.
             </p>
@@ -62,7 +62,7 @@ export const Footer = () => {
         <div className="pt-8 border-t border-white/10">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <p className="text-gray-400 text-sm">
-              © {currentYear} Bitrus OTC. All rights reserved.
+              © {currentYear} Paythru. All rights reserved.
             </p>
             <div className="flex space-x-6">
               <Link href="/privacy" className="text-gray-400 hover:text-white transition-colors text-sm">
