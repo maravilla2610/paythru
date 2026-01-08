@@ -3,57 +3,32 @@
 import { useState, useEffect, useCallback } from "react";
 import { z } from "zod";
 import {
-    companySchema,
-    CompanyFormData,
-} from "@/lib/domain/entities/company";
-import { CompanyStructure } from "@/lib/domain/entities/company-structure";
-import {
     personSchema,
     PersonFormData,
 } from "@/lib/domain/entities/person";
-import { direccion, direccion_completa } from "@/lib/domain/entities/address";
-import { registerCompany } from "@/lib/actions/register-company";
+import { registerUser } from "@/lib/actions/register";
 import { createClient } from "@/lib/providers/supabase/client";
-import { RegisterCompanyService } from "@/lib/services/register-company";
-import { FormData, AddressType, DocumentType } from "../types/register-types";
+import { RegisterCompanyService } from "@/lib/services/register";
+import { FormData, AddressType } from "../types/register-types";
 import { toast } from "sonner"
 import { triggerFireworks } from "@/lib/utils";
 import { updateCrmStatus } from "@/lib/actions/crm";
 import { CrmStatus } from "@/lib/domain/enums/crm-status";
+import { User } from "../domain/entities/user";
 
 
 interface UseRegistrationFormProps {
-    userId?: number;
+    user: User | null;
     onSuccess?: () => void;
     onClose: () => void;
 }
 
-export function useRegistrationForm({ userId, onSuccess, onClose }: UseRegistrationFormProps) {
-    const [formData, setFormData] = useState<FormData>({
-        origen: "paythru",
-        moral: false,
-        user_id: userId,
-    });
+export function useRegistrationForm({ user, onSuccess, onClose }: UseRegistrationFormProps) {
+    const [formData, setFormData] = useState<FormData>({});
     const [errors, setErrors] = useState<Record<string, string>>({});
     const [isLoading, setIsLoading] = useState(false);
-    const [sameAddress, setSameAddress] = useState(false);
-    const [activeStep, setActiveStep] = useState<string | null>("type");
+    const [activeStep, setActiveStep] = useState<string | null>("general");
 
-    useEffect(() => {
-        if (sameAddress && formData.moral && formData.direccion_fiscal) {
-            setFormData((prev) => ({
-                ...prev,
-                direccion_operativa: {
-                    direccion: prev.direccion_fiscal?.direccion || "",
-                    colonia: prev.direccion_fiscal?.colonia || "",
-                    ciudad: prev.direccion_fiscal?.ciudad || "",
-                    estado: prev.direccion_fiscal?.estado || "",
-                    pais: prev.direccion_fiscal?.pais || "",
-                    codigo_postal: prev.direccion_fiscal?.codigo_postal || "",
-                },
-            }));
-        }
-    }, [sameAddress, formData.direccion_fiscal, formData.moral]);
 
     useEffect(() => {
         const crmId = localStorage.getItem('crm_lead_id');
@@ -101,14 +76,6 @@ export function useRegistrationForm({ userId, onSuccess, onClose }: UseRegistrat
         clearFieldError(name);
     }, [clearFieldError]);
 
-    const handleDocumentTypeChange = useCallback((value: DocumentType) => {
-        setFormData((prev) => ({
-            ...prev,
-            tipo_documento: value,
-        }));
-        clearFieldError("tipo_documento");
-    }, [clearFieldError]);
-
     const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, files } = e.target;
         if (files && files.length > 0) {
@@ -128,7 +95,7 @@ export function useRegistrationForm({ userId, onSuccess, onClose }: UseRegistrat
         setFormData((prev) => ({
             ...prev,
             [addressType]: {
-                ...prev[addressType],
+                ...(prev[addressType] || {}),
                 [field]: value,
             },
         }));
@@ -145,7 +112,7 @@ export function useRegistrationForm({ userId, onSuccess, onClose }: UseRegistrat
     const validateStep = useCallback((fields: string[]): boolean => {
         const newErrors: Record<string, string> = {};
         let isValid = true;
-        const schema = formData.moral ? companySchema : personSchema;
+        const schema = personSchema;
 
         fields.forEach((field) => {
             // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -196,25 +163,15 @@ export function useRegistrationForm({ userId, onSuccess, onClose }: UseRegistrat
         setIsLoading(true);
         try {
             const submissionData = { ...formData };
-            
-            submissionData.direccion_fiscal_completa = direccion_completa(
-                submissionData.direccion_fiscal as z.infer<typeof direccion>
-            );
-            
-            if (submissionData.direccion_operativa) {
-                submissionData.direccion_operativa_completa = direccion_completa(
-                    submissionData.direccion_operativa as z.infer<typeof direccion>
-                );
-            }
 
-            const schema = submissionData.moral ? companySchema : personSchema;
+            const schema = personSchema;
             schema.parse(submissionData);
 
             const supabase = createClient();
             const service = new RegisterCompanyService(supabase);
             const dataWithFiles = await service.uploadAllFiles(submissionData as unknown as Record<string, unknown>);
 
-            await registerCompany(dataWithFiles as CompanyFormData | PersonFormData);
+            await registerUser(dataWithFiles as PersonFormData, user?.id || undefined);
 
             const crmId = localStorage.getItem('crm_lead_id');
             if (crmId) {
@@ -235,9 +192,9 @@ export function useRegistrationForm({ userId, onSuccess, onClose }: UseRegistrat
                 const issues = error.issues || (error as any).errors || [];
 
                 issues.forEach((issue: z.ZodIssue) => {
-                    if (issue.path.length > 0) {
-                        const fieldName = issue.path[0] as string;
-                        newErrors[fieldName] = issue.message;
+                    const path = issue.path.join(".");
+                    if (path) {
+                        newErrors[path] = issue.message;
                     }
                 });
 
@@ -250,28 +207,12 @@ export function useRegistrationForm({ userId, onSuccess, onClose }: UseRegistrat
         } finally {
             setIsLoading(false);
         }
-    }, [formData, onClose, onSuccess]);
+    }, [formData, user?.id, onClose, onSuccess]);
 
-    const handleSameAddressChange = useCallback((checked: boolean) => {
-        setSameAddress(checked);
-        if (checked && formData.direccion_fiscal) {
-            setFormData((prev) => ({
-                ...prev,
-                direccion_operativa: {
-                    direccion: prev.direccion_fiscal?.direccion || "",
-                    colonia: prev.direccion_fiscal?.colonia || "",
-                    ciudad: prev.direccion_fiscal?.ciudad || "",
-                    estado: prev.direccion_fiscal?.estado || "",
-                    pais: prev.direccion_fiscal?.pais || "",
-                    codigo_postal: prev.direccion_fiscal?.codigo_postal || "",
-                },
-            }));
-        }
-    }, [formData.direccion_fiscal]);
 
     const handleFieldUpdate = useCallback((
         field: string,
-        value: string | number | boolean | Date | CompanyStructure[] | undefined
+        value: string | number | boolean | Date | undefined
     ) => {
         setFormData((prev) => ({
             ...prev,
@@ -285,18 +226,15 @@ export function useRegistrationForm({ userId, onSuccess, onClose }: UseRegistrat
         setFormData,
         errors,
         isLoading,
-        sameAddress,
         activeStep,
         setActiveStep,
         handleChange,
         handleSelectChange,
-        handleDocumentTypeChange,
         handleFileChange,
         handleAddressChange,
         handleFieldUpdate,
         handleNext,
         handleBack,
         handleSubmit,
-        handleSameAddressChange,
     };
 }

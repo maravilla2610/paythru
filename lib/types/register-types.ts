@@ -1,14 +1,13 @@
-import { CompanyFormData } from "@/lib/domain/entities/company";
 import { PersonFormData } from "@/lib/domain/entities/person";
-import { CompanyStructure } from "@/lib/domain/entities/company-structure";
+import { Address } from "@/lib/domain/entities/address";
 
-export type FormData = Partial<CompanyFormData & PersonFormData> & {
-    estructura_societaria?: CompanyStructure[];
+export type FormData = Partial<Omit<PersonFormData, 'domicilio_particular'>> & {
+    domicilio_particular?: Partial<Address>;
 };
 
 export type DocumentType = "pasaporte" | "ine" | "licencia" | "cartilla_militar";
 
-export type AddressType = "direccion_fiscal" | "direccion_operativa";
+export type AddressType = "domicilio_particular";
 
 export interface RegistrationFormProps {
     user: { id?: number } | null;

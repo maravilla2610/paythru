@@ -4,7 +4,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuPositi
 import { User } from "@/lib/domain/entities/user"
 
 export default function Navigation({ user }: { user: User }) {
-    const initial = user.nombre ? user.nombre.charAt(0).toUpperCase() : "U";
+    const initial = user.nombre_completo ? user.nombre_completo.charAt(0).toUpperCase() : "U";
 
     return (
         <DropdownMenu>

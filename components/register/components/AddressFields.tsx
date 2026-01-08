@@ -5,7 +5,6 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { TextField, FileField, CountrySelectField } from "./FormFields";
 import { AddressType, FormData } from "../../../lib/types/register-types";
-import { countries } from "@/lib/domain/entities/countries";
 
 interface AddressFieldsProps {
     addressType: AddressType;
@@ -14,8 +13,8 @@ interface AddressFieldsProps {
     onAddressChange: (addressType: AddressType, field: string, value: string) => void;
     onFileChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
     title: string;
-    fileFieldName: string;
-    fileFieldLabel: string;
+    fileFieldName?: string;
+    fileFieldLabel?: string;
 }
 
 export function AddressFields({
@@ -29,7 +28,7 @@ export function AddressFields({
     fileFieldLabel,
 }: AddressFieldsProps) {
     const address = formData[addressType];
-    const getError = (field: string) => errors[`${addressType}.${field}`] || errors[field];
+    const getError = (field: string) => errors[`${addressType}.${field}`] || errors[field] || errors[addressType];
 
     return (
         <>
@@ -82,8 +81,9 @@ export function AddressFields({
                     value={address?.pais || ""}
                     onValueChange={(value) => onAddressChange(addressType, "pais", value)}
                     error={getError("pais")}
-                    countries={countries}
+                    countries={[{ code: "MX", name: "México" }]}
                 />
+                {fileFieldName && fileFieldLabel && (
                 <FileField
                     id={fileFieldName}
                     label={fileFieldLabel}
@@ -91,6 +91,7 @@ export function AddressFields({
                     error={errors[fileFieldName]}
                     fileName={(formData[fileFieldName as keyof FormData] as File)?.name}
                 />
+                )}
             </div>
         </>
     );

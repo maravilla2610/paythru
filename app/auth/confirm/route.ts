@@ -4,7 +4,7 @@ import { EmailOtpType } from "@supabase/supabase-js"
 
 export async function GET(request: Request) {
   const { searchParams } = new URL(request.url)
-  const next = searchParams.get('next') ?? '/dashboard'
+  const next = searchParams.get('next') ?? '/onboarding'
   const token_hash = searchParams.get('token_hash')
   const type = searchParams.get('type')
   const code = searchParams.get('code')

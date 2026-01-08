@@ -4,23 +4,13 @@ import z from "zod";
 export const userSchema = z.object({
     id: z.number(),
     correo: z.email(),
-    nombre: z.string(),
-    apellido: z.string().optional(),
-    nombre_completo: z.string().optional(),
-    telefono: z.number().optional(),
-    foto: z.file().optional(),
-    rol_trabajo: z.string().optional(),
-    rol_systema: z.enum([
-        'admin',
-        'client',
-        'operador'
-    ]),
-    companies: z.array(z.string()).optional(),
-    estado: z.enum([
-        'activo',
-        'inactivo',
-        'pendiente'
-    ]).optional(),
+    nombre_completo: z.string(),
+    pais_nacimiento: z.string().nullable(),
+    fecha_nacimiento: z.string().nullable(),
+    nacionalidad: z.string().nullable(),
+    nombre_completo_ordenante: z.string().nullable(),
+    onboarding: z.boolean(),
+    domicilio_particular: z.string().nullable(),
 });
 
 export type User = z.infer<typeof userSchema>;

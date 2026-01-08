@@ -59,20 +59,12 @@ export const COMPANY_GENERAL_FIELDS = [
 ] as const;
 
 export const PERSON_GENERAL_FIELDS = [
-    "nombre_representante_legal",
-    "apellido_representante_legal",
-    "tipo_documento",
-    "documento",
-    "numero_documento",
-    "fecha_de_nacimiento",
-    "csf",
-    "curp",
-    "rfc",
-    "correo",
-    "telefono",
+    "nombre_completo",
+    "fecha_nacimiento",
     "nacionalidad",
-    "e_firma",
-    "no_sello",
+    "pais_nacimiento",
+    "nombre_completo_ordenante",
+    "ine",
 ] as const;
 
 export const REPRESENTATIVE_FIELDS = [

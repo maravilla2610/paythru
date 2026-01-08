@@ -1,5 +1,4 @@
 import { getUser } from "@/lib/actions/user";
-import { AppSidebar } from "@/components/app-sidebar";
 import { redirect } from "next/navigation";
 
 export default async function DashboardLayout({
@@ -14,8 +13,8 @@ export default async function DashboardLayout({
   }
 
   return (
-    <AppSidebar user={user}>
+    <div className="w-full min-h-screen">
       {children}
-    </AppSidebar>
+    </div>
   );
 }

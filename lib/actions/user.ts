@@ -9,7 +9,7 @@ export async function getUser(): Promise<User | null> {
     const { data: { user } } = await supabase.auth.getUser()
 
     const { data, error } = await supabase
-        .from('Users')
+        .from('UsersPayThru')
         .select('*')
         .eq('correo', user?.email)
         .single()

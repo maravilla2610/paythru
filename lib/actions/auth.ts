@@ -15,12 +15,13 @@ export async function login(prevState: { error?: string, message?: string } | nu
 
     const email = formData.get('email') as string
 
-    const { data: user, error: userError} = await supabase.from('Users').select().eq('correo', email).single()
+    const { data: user, error: userError} = await supabase.from('UsersPayThru').select().eq('correo', email).single()
 
     if (userError || !user) {
-        const { error: userError } = await supabase.from('Users').insert([
+        const { error: userError } = await supabase.from('UsersPayThru').insert([
             { 
-                correo: `${email}` 
+                correo: `${email}`,
+                onboarding: false
             }
         ])
         if (userError) {
