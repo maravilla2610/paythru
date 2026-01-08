@@ -59,7 +59,7 @@ export function LoginForm({
       <Card>
         <CardHeader className="text-center">
           <CardTitle className="text-xl">
-            Access Boost OTC
+            Access Paythru
           </CardTitle>
         </CardHeader>
         <CardContent>
